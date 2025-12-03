@@ -3,13 +3,24 @@ const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const GitAutoSave = require('./auto-git');
+
+// Only load auto-git in development
+let GitAutoSave;
+let gitAutoSave;
+
+const isProduction = process.env.RENDER || process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV === 'production';
+
+if (!isProduction) {
+    try {
+        GitAutoSave = require('./auto-git');
+        gitAutoSave = new GitAutoSave('./uploads');
+    } catch (error) {
+        console.log('⚠️ Auto-git module not loaded (production mode)');
+    }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// Initialize auto-save
-const gitAutoSave = new GitAutoSave('./uploads');
 
 // Middleware
 app.use(cors());
@@ -36,7 +47,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 },
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
     fileFilter: function (req, file, cb) {
         const filetypes = /jpeg|jpg|png|gif|webp/;
         const mimetype = filetypes.test(file.mimetype);
@@ -76,11 +87,13 @@ app.post('/api/upload', upload.array('images', 20), (req, res) => {
             message: `${req.files.length} file(s) uploaded successfully`
         });
 
-        // Trigger auto-save after 10 seconds
-        console.log('⏰ Scheduling auto-save in 10 seconds...');
-        setTimeout(() => {
-            gitAutoSave.autoSave();
-        }, 10000);
+        // Only trigger auto-save in development (local)
+        if (!isProduction && gitAutoSave) {
+            console.log('⏰ Scheduling auto-save in 10 seconds...');
+            setTimeout(() => {
+                gitAutoSave.autoSave();
+            }, 10000);
+        }
 
     } catch (error) {
         console.error('❌ Upload error:', error);
@@ -110,14 +123,21 @@ app.get('/api/images', (req, res) => {
     }
 });
 
-// Manual trigger for auto-save (optional endpoint)
+// Manual trigger for auto-save (development only)
 app.post('/api/git-save', (req, res) => {
-    console.log('🔄 Manual git-save triggered');
-    gitAutoSave.autoSave();
-    res.json({ success: true, message: 'Git auto-save triggered' });
+    if (!isProduction && gitAutoSave) {
+        console.log('🔄 Manual git-save triggered');
+        gitAutoSave.autoSave();
+        res.json({ success: true, message: 'Git auto-save triggered' });
+    } else {
+        res.json({ 
+            success: false, 
+            message: 'Auto-save not available in production. Use download feature instead.' 
+        });
+    }
 });
 
-// Serve static files
+// Serve static files (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname)));
 
 // Root route
@@ -127,11 +147,18 @@ app.get('/', (req, res) => {
 
 // Health check
 app.get('/health', (req, res) => {
+    const imageCount = fs.readdirSync(uploadsDir).filter(file => {
+        const ext = path.extname(file).toLowerCase();
+        return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+    }).length;
+
     res.json({ 
-        status: 'OK', 
-        images: fs.readdirSync(uploadsDir).length,
-        autoSave: 'enabled',
+        status: 'OK',
+        environment: isProduction ? 'production' : 'development',
+        images: imageCount,
+        autoSave: isProduction ? 'disabled' : 'enabled',
         interval: '2 minutes',
+        storage: isProduction ? 'temporary (ephemeral)' : 'permanent (local)',
         timestamp: new Date().toISOString()
     });
 });
@@ -147,11 +174,26 @@ app.use((error, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
+    console.log('='.repeat(60));
+    console.log('🎉 Anniversary Gallery - Sri Sivani Engineering College');
+    console.log('='.repeat(60));
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`📁 Uploads folder: ${uploadsDir}`);
     console.log(`📸 Current images: ${fs.readdirSync(uploadsDir).length}`);
+    console.log(`🌐 Environment: ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'}`);
     
-    // Start auto-save every 2 minutes
-    gitAutoSave.startAutoSave(2);
-    console.log('🔄 Auto-save to GitHub: Every 2 minutes');
+    if (!isProduction && gitAutoSave) {
+        gitAutoSave.startAutoSave(2);
+        console.log('🔄 Auto-save to GitHub: ENABLED (Every 2 minutes)');
+        console.log('💾 Storage: Permanent (local files + GitHub)');
+    } else {
+        console.log('🔄 Auto-save to GitHub: DISABLED (Production mode)');
+        console.log('💾 Storage: Temporary (ephemeral - resets on restart)');
+        console.log('💡 Tip: Download photos as PDF to save permanently');
+    }
+    
+    console.log('='.repeat(60));
+    console.log('✅ Ready for anniversary event!');
+    console.log('📱 Share URL with everyone to upload photos');
+    console.log('='.repeat(60));
 });

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anniversary Gallery - Computer Institute</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background-animation">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Institute Gallery</span>
+            </div>
+            <div class="nav-stats">
+                <div class="stat-item">
+                    <i class="fas fa-images"></i>
+                    <span id="photoCount">0</span> Photos
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    <span>Live</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-star"></i>
+                <span>Anniversary Celebration 2025</span>
+            </div>
+            <h1 class="hero-title">
+                <span class="gradient-text">Capture Every Moment</span>
+            </h1>
+            <p class="hero-subtitle">Upload, share, and preserve memories from our special day</p>
+            
+            <!-- Upload Section in Hero -->
+            <div class="hero-upload">
+                <input type="file" id="imageUpload" accept="image/*" multiple>
+                <label for="imageUpload" class="upload-btn-hero">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Upload Photos</span>
+                </label>
+                <p class="upload-info">
+                    <i class="fas fa-info-circle"></i>
+                    Drag & drop or click to select multiple images
+                </p>
+            </div>
+        </div>
+        
+        <!-- Floating Cards Animation -->
+        <div class="floating-cards">
+            <div class="float-card card-1">📸</div>
+            <div class="float-card card-2">🎓</div>
+            <div class="float-card card-3">💻</div>
+            <div class="float-card card-4">🎉</div>
+        </div>
+    </header>
+
+    <!-- Gallery Section -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Gallery Controls -->
+            <div class="gallery-controls">
+                <div class="controls-left">
+                    <h2 class="section-title">
+                        <i class="fas fa-images"></i>
+                        Photo Gallery
+                    </h2>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="view-btn" data-view="masonry">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button class="view-btn" data-view="list">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="controls-right">
+                    <button id="selectAll" class="control-btn">
+                        <i class="fas fa-check-double"></i>
+                        Select All
+                    </button>
+                    <button id="downloadPDF" class="control-btn primary">
+                        <i class="fas fa-file-pdf"></i>
+                        Download Album
+                    </button>
+                </div>
+            </div>
+
+            <!-- Gallery Grid -->
+            <div id="gallery" class="gallery-grid view-grid"></div>
+            
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h3>No Photos Yet</h3>
+                <p>Start uploading photos to create your anniversary album</p>
+                <label for="imageUpload" class="empty-upload-btn">
+                    <i class="fas fa-plus"></i>
+                    Add First Photo
+                </label>
+            </div>
+        </div>
+    </main>
+           <!-- Album View Section -->
+    <section class="album-section">
+        <div class="container">
+            <div class="album-header">
+                <div class="album-badge-large">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h2 class="album-title">Digital Memory Album</h2>
+                <p class="album-subtitle">Experience your memories in an immersive 3D album</p>
+                <div class="album-features">
+                    <div class="feature-item">
+                        <i class="fas fa-magic"></i>
+                        <span>3D Page Flip</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-download"></i>
+                        <span>Download Photos</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-expand"></i>
+                        <span>Fullscreen View</span>
+                    </div>
+                </div>
+                <button id="openAlbum" class="open-album-btn">
+                    <i class="fas fa-book"></i>
+                    <span>Open Memory Album</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Album Modal -->
+    <div id="albumModal" class="album-modal">
+        <!-- Background Blur -->
+        <div class="album-backdrop"></div>
+        
+        <!-- Controls Bar -->
+        <div class="album-controls-bar">
+            <div class="controls-left-side">
+                <button class="control-icon-btn" id="albumInfo">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+                <div class="album-counter">
+                    <span id="currentAlbumPhoto">1</span>
+                    <span class="counter-divider">/</span>
+                    <span id="totalAlbumPhotos">0</span>
+                </div>
+            </div>
+            
+            <div class="controls-center">
+                <h3 class="album-modal-title">Anniversary Album 2025</h3>
+            </div>
+            
+            <div class="controls-right-side">
+                <button class="control-icon-btn" id="albumFullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button class="control-icon-btn" id="albumDownloadCurrent">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="control-icon-btn close-btn" id="closeAlbum">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Album Book Container -->
+        <div class="album-book-container">
+            <!-- Album Cover -->
+            <div class="album-cover-wrapper" id="albumCoverWrapper">
+                <div class="album-cover-book">
+                    <div class="cover-front">
+                        <div class="cover-shine"></div>
+                        <div class="cover-content-wrapper">
+                            <div class="cover-emblem">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            
+                            <div class="cover-text">
+                                <h1 class="cover-main-title">Anniversary</h1>
+                                <div class="cover-year">2025</div>
+                                <div class="cover-line"></div>
+                                <p class="cover-institute-name">Computer Institute</p>
+                                <p class="cover-motto">Celebrating Excellence</p>
+                            </div>
+                            
+                            <div class="cover-bottom">
+                                <div class="cover-date-badge">
+                                    <i class="fas fa-calendar"></i>
+                                    <span id="coverDate"></span>
+                                </div>
+                            </div>
+                            
+                            <button class="open-book-btn" id="openBookBtn">
+                                <span>Open Album</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="cover-spine"></div>
+                    <div class="cover-back"></div>
+                </div>
+            </div>
+            
+            <!-- 3D Flip Book -->
+            <div class="flip-book-wrapper" id="flipBookWrapper" style="display: none;">
+                <div class="flip-book-stage">
+                    <!-- Current Photo Display -->
+                    <div class="photo-display-card">
+                        <div class="photo-card-inner">
+                            <div class="photo-main">
+                                <img id="mainAlbumPhoto" src="" alt="Memory">
+                                <div class="photo-gradient-overlay"></div>
+                            </div>
+                            
+                            <div class="photo-info-panel">
+                                <div class="info-header">
+                                    <h4 id="photoTitle">Memory Title</h4>
+                                    <span id="photoDate" class="photo-date">
+                                        <i class="fas fa-clock"></i>
+                                        Just now
+                                    </span>
+                                </div>
+                                
+                                <div class="photo-tags">
+                                    <span class="tag"><i class="fas fa-heart"></i> Anniversary</span>
+                                    <span class="tag"><i class="fas fa-users"></i> Celebration</span>
+                                    <span class="tag"><i class="fas fa-camera"></i> Memory</span>
+                                </div>
+                                
+                                <div class="photo-actions">
+                                    <button class="photo-action-btn" id="downloadPhotoBtn">
+                                        <i class="fas fa-download"></i>
+                                        <span>Download</span>
+                                    </button>
+                                    <button class="photo-action-btn" id="sharePhotoBtn">
+                                        <i class="fas fa-share-alt"></i>
+                                        <span>Share</span>
+                                    </button>
+                                    <button class="photo-action-btn" id="fullscreenPhotoBtn">
+                                        <i class="fas fa-expand-arrows-alt"></i>
+                                        <span>Fullscreen</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Thumbnail Strip -->
+                    <div class="thumbnail-strip">
+                        <button class="thumb-scroll-btn left" id="thumbScrollLeft">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="thumbnail-container" id="thumbnailContainer">
+                            <!-- Thumbnails will be generated here -->
+                        </div>
+                        <button class="thumb-scroll-btn right" id="thumbScrollRight">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Arrows -->
+        <button class="album-arrow-nav left" id="albumNavPrev">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="album-arrow-nav right" id="albumNavNext">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        
+        <!-- Progress Bar -->
+        <div class="album-progress-bar">
+            <div class="progress-fill" id="albumProgressFill"></div>
+        </div>
+    </div>
+
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <p>&copy; 2025 Computer Institute Anniversary</p>
+                <p class="footer-tagline">Preserving memories, celebrating excellence</p>
+            </div>
+            <div class="footer-right">
+                <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loader">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div class="modal-caption" id="modalCaption"></div>
+        <div class="modal-nav">
+            <button class="modal-nav-btn" id="modalPrev"><i class="fas fa-chevron-left"></i></button>
+            <button class="modal-nav-btn" id="modalNext"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>

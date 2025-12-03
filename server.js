@@ -3,9 +3,13 @@ const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const GitAutoSave = require('./auto-git');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize auto-save
+const gitAutoSave = new GitAutoSave('./uploads');
 
 // Middleware
 app.use(cors());
@@ -32,7 +36,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
         const filetypes = /jpeg|jpg|png|gif|webp/;
         const mimetype = filetypes.test(file.mimetype);
@@ -71,6 +75,13 @@ app.post('/api/upload', upload.array('images', 20), (req, res) => {
             files: fileUrls,
             message: `${req.files.length} file(s) uploaded successfully`
         });
+
+        // Trigger auto-save after 10 seconds
+        console.log('⏰ Scheduling auto-save in 10 seconds...');
+        setTimeout(() => {
+            gitAutoSave.autoSave();
+        }, 10000);
+
     } catch (error) {
         console.error('❌ Upload error:', error);
         res.status(500).json({ error: error.message });
@@ -99,7 +110,14 @@ app.get('/api/images', (req, res) => {
     }
 });
 
-// Serve static files (HTML, CSS, JS)
+// Manual trigger for auto-save (optional endpoint)
+app.post('/api/git-save', (req, res) => {
+    console.log('🔄 Manual git-save triggered');
+    gitAutoSave.autoSave();
+    res.json({ success: true, message: 'Git auto-save triggered' });
+});
+
+// Serve static files
 app.use(express.static(path.join(__dirname)));
 
 // Root route
@@ -112,6 +130,7 @@ app.get('/health', (req, res) => {
     res.json({ 
         status: 'OK', 
         images: fs.readdirSync(uploadsDir).length,
+        autoSave: 'enabled',
         timestamp: new Date().toISOString()
     });
 });
@@ -130,4 +149,8 @@ app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`📁 Uploads folder: ${uploadsDir}`);
     console.log(`📸 Current images: ${fs.readdirSync(uploadsDir).length}`);
+    
+    // Start auto-save (every 5 minutes)
+    gitAutoSave.startAutoSave(5);
+    console.log('🔄 Auto-save to GitHub: ENABLED');
 });

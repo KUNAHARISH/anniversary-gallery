@@ -7,7 +7,7 @@ class GitAutoSave {
         this.uploadsDir = uploadsDir;
         this.isProcessing = false;
         this.lastCommitTime = Date.now();
-        this.minCommitInterval = 30000; // 30 seconds minimum between commits
+        this.minCommitInterval = 120000; // 2 minutes = 120000 milliseconds
     }
 
     // Check if git is initialized
@@ -66,10 +66,11 @@ class GitAutoSave {
             return;
         }
 
-        // Rate limiting
+        // Rate limiting - 2 minutes minimum
         const now = Date.now();
         if (now - this.lastCommitTime < this.minCommitInterval) {
-            console.log('⏱️ Too soon, waiting...');
+            const waitTime = Math.ceil((this.minCommitInterval - (now - this.lastCommitTime)) / 1000);
+            console.log(`⏱️ Too soon, wait ${waitTime} seconds...`);
             return;
         }
 
@@ -103,10 +104,11 @@ class GitAutoSave {
                 return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
             });
 
-            const timestamp = new Date().toISOString();
+            const timestamp = new Date().toLocaleString();
             const commitMessage = `Auto-save: ${imageFiles.length} photos | ${timestamp}`;
 
             console.log('📤 Committing changes to git...');
+            console.log('📸 Images to commit:', imageFiles.length);
 
             // Git commands
             const commands = [
@@ -138,6 +140,7 @@ class GitAutoSave {
 
                 console.log('✅ Auto-saved to GitHub successfully!');
                 console.log('📸 Committed:', imageFiles.length, 'images');
+                console.log('🕐 Next auto-save in 2 minutes');
                 this.lastCommitTime = Date.now();
                 this.isProcessing = false;
             });
@@ -145,13 +148,13 @@ class GitAutoSave {
     }
 
     // Schedule periodic auto-save
-    startAutoSave(intervalMinutes = 5) {
+    startAutoSave(intervalMinutes = 2) {
         console.log(`🔄 Auto-save enabled: Every ${intervalMinutes} minutes`);
         
-        // Save immediately on start
+        // Save immediately on start (after 5 seconds)
         setTimeout(() => this.autoSave(), 5000);
 
-        // Then save periodically
+        // Then save periodically every 2 minutes
         setInterval(() => {
             this.autoSave();
         }, intervalMinutes * 60 * 1000);

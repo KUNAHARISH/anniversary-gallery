@@ -131,6 +131,7 @@ app.get('/health', (req, res) => {
         status: 'OK', 
         images: fs.readdirSync(uploadsDir).length,
         autoSave: 'enabled',
+        interval: '2 minutes',
         timestamp: new Date().toISOString()
     });
 });
@@ -150,7 +151,7 @@ app.listen(PORT, () => {
     console.log(`📁 Uploads folder: ${uploadsDir}`);
     console.log(`📸 Current images: ${fs.readdirSync(uploadsDir).length}`);
     
-    // Start auto-save (every 5 minutes)
-    gitAutoSave.startAutoSave(5);
-    console.log('🔄 Auto-save to GitHub: ENABLED');
+    // Start auto-save every 2 minutes
+    gitAutoSave.startAutoSave(2);
+    console.log('🔄 Auto-save to GitHub: Every 2 minutes');
 });
